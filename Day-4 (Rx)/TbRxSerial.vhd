@@ -47,167 +47,168 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_ARITH.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
-USE STD.TEXTIO.ALL;
+use STD.TEXTIO.all;
 
-Entity TbRxSerial Is
-End Entity TbRxSerial;
+entity TbRxSerial is
+end entity TbRxSerial;
 
-Architecture HTWTestBench Of TbRxSerial Is
+architecture HTWTestBench of TbRxSerial is
 
---------------------------------------------------------------------------------------------
--- Constant Declaration
---------------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------------------
+  -- Constant Declaration
+  --------------------------------------------------------------------------------------------
 
-	constant	tClk			: time := 10 ns;
-	
--------------------------------------------------------------------------
--- Component Declaration
--------------------------------------------------------------------------
-	
-	Component RxSerial Is
-	Port(
-		RstB		: in	std_logic;
-		Clk			: in	std_logic;
-		
-		SerDataIn	: in	std_logic;
-		
-		RxFfFull	: in	std_logic;
-		RxFfWrData	: out	std_logic_vector( 7 downto 0 );
-		RxFfWrEn	: out	std_logic
-	);
-	End Component RxSerial;
-	
--------------------------------------------------------------------------
--- Signal Declaration
--------------------------------------------------------------------------
-	
-	signal	TM			: integer	range 0 to 65535;
-	
-	signal	RstB		: std_logic;
-	signal	Clk			: std_logic;
-	signal	SerDataIn	: std_logic;
-	signal	RxFfFull	: std_logic;
-	signal	RxFfWrData	: std_logic_vector( 7 downto 0 );
-	signal	RxFfWrEn	: std_logic;
-	
-Begin
+  constant tClk : time := 10 ns;
 
-----------------------------------------------------------------------------------
--- Concurrent signal
-----------------------------------------------------------------------------------
-	
-	u_RstB : Process
-	Begin
-		RstB	<= '0';
-		wait for 20*tClk;
-		RstB	<= '1';
-		wait;
-	End Process u_RstB;
+  -------------------------------------------------------------------------
+  -- Component Declaration
+  -------------------------------------------------------------------------
 
-	u_Clk : Process
-	Begin
-		Clk		<= '1';
-		wait for tClk/2;
-		Clk		<= '0';
-		wait for tClk/2;
-	End Process u_Clk;
-	
-	u_RxSerial : RxSerial 
-	Port map
-	(
-		RstB		=> RstB			,	
-		Clk			=> Clk			,
-		SerDataIn	=> SerDataIn	,	
-		RxFfFull	=> RxFfFull	    ,
-		RxFfWrData	=> RxFfWrData	,
-		RxFfWrEn	=> RxFfWrEn	
-	);
-	
--------------------------------------------------------------------------
--- Testbench
--------------------------------------------------------------------------
+  component RxSerial is
+    port (
+      RstB : in std_logic;
+      Clk  : in std_logic;
 
-	u_Test : Process
-	variable	iSerData	: std_logic_vector( 9 downto 0 );
-	Begin
-		-------------------------------------------
-		-- TM=0 : Reset
-		-------------------------------------------
-		TM <= 0; wait for 1 ns;
-		Report "TM=" & integer'image(TM); 
-		SerDataIn	<= '1';
-		RxFfFull	<= '0';
-		wait for 30*tClk;
+      SerDataIn : in std_logic;
 
-		-------------------------------------------
-		-- TM=1 : Check counter value
-		-------------------------------------------	
-		TM <= 1; wait for 1 ns;
-		Report "TM=" & integer'image(TM); 
+      RxFfFull   : in std_logic;
+      RxFfWrData : out std_logic_vector(7 downto 0);
+      RxFfWrEn   : out std_logic
+    );
+  end component RxSerial;
 
-		wait until rising_edge(Clk);
-		iSerData 	:= '1'&x"99"&'0';
-		For i in 0 to 9 loop
-			SerDataIn	<= iSerData(0);
-			wait for 108*tClk;
-			wait until rising_edge(Clk);
-			iSerData	:= '1' & iSerData(9 downto 1);
-		End loop;
-		
-			wait until rising_edge(Clk);
-			iSerData 	:= '1'&x"88"&'0';
-			For i in 0 to 9 loop
-				SerDataIn	<= iSerData(0);
-				wait for 108*tClk;
-				wait until rising_edge(Clk);
-				iSerData	:= '1' & iSerData(9 downto 1);
-			End loop;
+  -------------------------------------------------------------------------
+  -- Signal Declaration
+  -------------------------------------------------------------------------
 
-			wait until rising_edge(Clk);
-			iSerData 	:= '1'&x"77"&'0';
-			For i in 0 to 9 loop
-				SerDataIn	<= iSerData(0);
-				wait for 108*tClk;
-				wait until rising_edge(Clk);
-				iSerData	:= '1' & iSerData(9 downto 1);
-			End loop;
+  signal TM : integer range 0 to 65535;
 
-				wait until rising_edge(Clk);
-			iSerData 	:= '1'&x"AC"&'0';
-			For i in 0 to 9 loop
-				SerDataIn	<= iSerData(0);
-				wait for 108*tClk;
-				wait until rising_edge(Clk);
-				iSerData	:= '1' & iSerData(9 downto 1);
-			End loop;
+  signal RstB       : std_logic;
+  signal Clk        : std_logic;
+  signal SerDataIn  : std_logic;
+  signal RxFfFull   : std_logic;
+  signal RxFfWrData : std_logic_vector(7 downto 0);
+  signal RxFfWrEn   : std_logic;
 
-				wait until rising_edge(Clk);
-			iSerData 	:= '1'&x"5B"&'0';
-			For i in 0 to 9 loop
-				SerDataIn	<= iSerData(0);
-				wait for 108*tClk;
-				wait until rising_edge(Clk);
-				iSerData	:= '1' & iSerData(9 downto 1);
-			End loop;
+begin
 
-				wait until rising_edge(Clk);
-			iSerData 	:= '1'&x"99"&'0';
-			For i in 0 to 9 loop
-				SerDataIn	<= iSerData(0);
-				wait for 108*tClk;
-				wait until rising_edge(Clk);
-				iSerData	:= '1' & iSerData(9 downto 1);
-			End loop;
+  ----------------------------------------------------------------------------------
+  -- Concurrent signal
+  ----------------------------------------------------------------------------------
 
-		wait for 100*tClk;
-		
-		
-		--------------------------------------------------------
-		TM <= 255; wait for 1 ns;
-		wait for 20*tClk;
-		Report "##### End Simulation #####" Severity Failure;		
-		wait;
-		
-	End Process u_Test;
+  u_RstB : process
+  begin
+    RstB <= '0';
+    wait for 20 * tClk;
+    RstB <= '1';
+    wait;
+  end process u_RstB;
 
-End Architecture HTWTestBench;
+  u_Clk : process
+  begin
+    Clk <= '1';
+    wait for tClk/2;
+    Clk <= '0';
+    wait for tClk/2;
+  end process u_Clk;
+
+  u_RxSerial : RxSerial
+  port map
+  (
+    RstB       => RstB,
+    Clk        => Clk,
+    SerDataIn  => SerDataIn,
+    RxFfFull   => RxFfFull,
+    RxFfWrData => RxFfWrData,
+    RxFfWrEn   => RxFfWrEn
+  );
+
+  -------------------------------------------------------------------------
+  -- Testbench
+  -------------------------------------------------------------------------
+
+  u_Test : process
+    variable iSerData : std_logic_vector(9 downto 0);
+  begin
+    -------------------------------------------
+    -- TM=0 : Reset
+    -------------------------------------------
+    TM <= 0;
+    wait for 1 ns;
+    report "TM=" & integer'image(TM);
+    SerDataIn <= '1';
+    RxFfFull  <= '0';
+    wait for 30 * tClk;
+
+    -------------------------------------------
+    -- TM=1 : Check counter value
+    -------------------------------------------	
+    TM <= 1;
+    wait for 1 ns;
+    report "TM=" & integer'image(TM);
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"99" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"88" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"77" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"AC" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"5B" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait until rising_edge(Clk);
+    iSerData := '1' & x"99" & '0';
+    for i in 0 to 9 loop
+      SerDataIn <= iSerData(0);
+      wait for 108 * tClk;
+      wait until rising_edge(Clk);
+      iSerData := '1' & iSerData(9 downto 1);
+    end loop;
+
+    wait for 100 * tClk;
+    --------------------------------------------------------
+    TM <= 255;
+    wait for 1 ns;
+    wait for 20 * tClk;
+    report "##### End Simulation #####" severity Failure;
+    wait;
+
+  end process u_Test;
+
+end architecture HTWTestBench;
